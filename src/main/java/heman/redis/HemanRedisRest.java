@@ -27,7 +27,7 @@ public class HemanRedisRest {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Basic " +  commit());
+            conn.setRequestProperty("Authorization", "Basic " +  getEncodedCredentials());
             conn.setDoOutput(true);
 
             String requestBody = "{}";

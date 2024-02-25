@@ -4,11 +4,11 @@ import redis.clients.jedis.Jedis;
 
 public class HemanRedisInsert {
 
-    private static final String SOURCE_DB_HOST = "redis-18737.c274.us-east-1-3.ec2.cloud.redislabs.com";
-    private static final int SOURCE_DB_PORT = 18737;
-    private static final String REPLICA_DB_HOST = "redis-18737.c274.us-east-1-3.ec2.cloud.redislabs.com";
-    private static final int REPLICA_DB_PORT = 18737;
-    private static final String REDIS_PASSWORD = "him28pass$";
+    private static final String SOURCE_DB_HOST = "172.16.22.21";
+    private static final int SOURCE_DB_PORT = 10999;
+    private static final String REPLICA_DB_HOST = "172.16.22.21";
+    private static final int REPLICA_DB_PORT = 10998;
+    private static final String REDIS_PASSWORD = "him28pass";
     private static final String KEY_NAME = "hemankey";
 
     public static void main(String[] args) {
