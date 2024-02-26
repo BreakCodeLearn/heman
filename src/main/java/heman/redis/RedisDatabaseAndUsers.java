@@ -34,13 +34,13 @@ public class RedisDatabaseAndUsers {
             System.out.println("\n");
 
             // Create Redis database
-            System.out.println("Task 1: Create a new Redis-DB");
+            System.out.println("Task 1: |Create a new Redis-DB|");
             int uid = createRedisDB(dbApiUrl, encodedAuth, "heman-new-db");
 
             System.out.println("\n");
 
             // Create admin user
-            System.out.println("Task 2: Create three new Redis-Users");
+            System.out.println("Task 2: |Create three new Redis-Users|");
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
             createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
             createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
@@ -48,14 +48,14 @@ public class RedisDatabaseAndUsers {
             System.out.println("\n");
 
             // Display all users
-            System.out.println("Task 3: List and display Redis-Users");
+            System.out.println("Task 3: |List and display Redis-Users|");
             displayAllUsers(usersApiUrl, encodedAuth);
 
             // Add a line space
             System.out.println("\n");
 
             // Delete Redis database
-            System.out.println("Task 4: Delete the created Redis-DB");
+            System.out.println("Task 4: |Delete the created Redis-DB|");
             deleteRedisDB(dbApiUrl, encodedAuth, uid);
 
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class RedisDatabaseAndUsers {
             // Get the response
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Database creation request was successful (Response code: " + responseCode + ")");
+                System.out.println("Database creation request was successful");
 
                 // Read the response body
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -144,7 +144,7 @@ public class RedisDatabaseAndUsers {
                 System.out.println("User created successfully: " + email);
             } else {
                 System.out.println(
-                        "Failed to create user as it already exists " + email + ". Response code: " + responseCode);
+                        "Failed to create user as it already exists " + email);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -169,7 +169,6 @@ public class RedisDatabaseAndUsers {
 
             // Get the response
             int responseCode = connection.getResponseCode();
-            System.out.println("Display users list :" + "Response Code: " + responseCode);
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
