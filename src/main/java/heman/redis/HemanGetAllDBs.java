@@ -92,13 +92,17 @@ public class HemanGetAllDBs {
             JSONObject database = databases.getJSONObject(i);
             String dbName = database.getString("name");
             String status = database.getString("status");
+            int uid = database.getInt("uid"); // Extract uid as integer directly
+            
             int port = database.getJSONArray("endpoints").getJSONObject(0).getInt("port");
             System.out.println("Database Name: " + dbName);
             System.out.println("Status: " + status);
             System.out.println("Port: " + port);
+            System.out.println("UID: " + uid);
             // Extract and print other relevant information as needed
             System.out.println();
         }
-    }
+    }    
+    
 }
 

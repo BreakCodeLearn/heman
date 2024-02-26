@@ -3,6 +3,7 @@ package heman.redis;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
@@ -12,58 +13,61 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class HemanRedisCreateDBAndUsers {
 
     public static void main(String[] args) {
-        // Database creation
+        // Database API URLs
         String dbApiUrl = "https://172.16.22.21:9443/v1/bdbs";
-        String dbUsername = "admin@rl.org";
-        String dbPassword = "nFbiQlO";
-        String databaseName = "heman-new-db";
-
-        // User creation
+        // Users API URLs
         String usersApiUrl = "https://172.16.22.21:9443/v1/users";
-        String userUsername = "admin@rl.org";
-        String userPassword = "nFbiQlO";
-        String encodedAuth = Base64.getEncoder().encodeToString((userUsername + ":" + userPassword).getBytes());
+
+        // Authentication
+        String username = "admin@rl.org";
+        String password = "nFbiQlO";
+        String encodedAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
 
         try {
-            // Trust all certificates
             trustAllCertificates();
+            System.out.println("\n");
 
-            // Create database
-            createDatabase(dbApiUrl, dbUsername, dbPassword, databaseName);
+            // Create Redis database
+            int uid = createRedisDB(dbApiUrl, encodedAuth, "heman-new-db");
 
-            // Create user
+            System.out.println("\n");
+
+            // Create admin user
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
 
-            // Create db_member user
-            // createUser(usersApiUrl, encodedAuth, "mike.smith@example.com", "Mike Smith", "db_member");
-
-            // Create db_viewer user
-            // createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
+            System.out.println("\n");
 
             // Display all users
             displayAllUsers(usersApiUrl, encodedAuth);
+
+            // Add a line space
+            System.out.println("\n");
+
+            // Delete Redis database
+            if (uid != -1) {
+                deleteRedisDB(dbApiUrl, encodedAuth, uid);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void createDatabase(String apiUrl, String username, String password, String databaseName) {
+    private static int createRedisDB(String apiUrl, String encodedAuth, String databaseName) {
         try {
-            // Encode username and password for basic authentication
-            String authString = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
-
             // Create HTTP connection
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            // If the connection is HTTPS, cast to HttpsURLConnection and configure SSL
+            // If the connection is HTTPS, configure SSL
             if (connection instanceof HttpsURLConnection) {
-                // Trust all certificates
-                trustAllCertificates();
+                trustAllCertificates((HttpsURLConnection) connection);
             }
 
             // Set up the request
@@ -76,27 +80,41 @@ public class HemanRedisCreateDBAndUsers {
             String postData = "{\"name\": \"" + databaseName + "\", \"memory_size\": 20480000}";
 
             // Send the request
-            connection.getOutputStream().write(postData.getBytes("UTF-8"));
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(postData.getBytes("utf-8"));
+            }
 
             // Get the response
             int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_CREATED) {
-                System.out.println("Database \"" + databaseName + "\" created successfully.");
-            } else if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Request was successful (Response code: " + responseCode + ")");
-            } else {
-                System.out.println("Failed to create database. Response code: " + responseCode);
-                // Print response message for debugging
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.out.println("Database creation request was successful (Response code: " + responseCode + ")");
+
+                // Read the response body
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
+                        response.append(line);
                     }
+
+                    // Parse JSON response
+                    JSONObject jsonResponse = new JSONObject(response.toString());
+                    String dbName = jsonResponse.getString("name");
+                    int uid = jsonResponse.getInt("uid");
+
+                    // Print UID
+                    System.out.println("New database name " + dbName + " UID: " + uid);
+
+                    return uid;
                 }
+            } else {
+                System.out.println("Failed to create database. Response code: " + responseCode);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return -1;
     }
 
     private static void createUser(String apiUrl, String encodedAuth, String email, String name, String role) {
@@ -121,7 +139,8 @@ public class HemanRedisCreateDBAndUsers {
             if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
                 System.out.println("User created successfully: " + email);
             } else {
-                System.out.println("Failed to create user " + email + ". Response code: " + responseCode);
+                System.out.println(
+                        "Failed to create user as it already exists " + email + ". Response code: " + responseCode);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -146,14 +165,29 @@ public class HemanRedisCreateDBAndUsers {
 
             // Get the response
             int responseCode = connection.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
+            System.out.println("Display users list " + "Response Code: " + responseCode);
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    StringBuilder usersData = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        // Print each user data line by line
-                        System.out.println(line);
+                        // Append each line to the usersData StringBuilder
+                        usersData.append(line);
+                    }
+
+                    // Parse JSON array of users
+                    JSONArray usersArray = new JSONArray(usersData.toString());
+
+                    // Iterate through the users and print required fields
+                    for (int i = 0; i < usersArray.length(); i++) {
+                        JSONObject user = usersArray.getJSONObject(i);
+                        String name = user.getString("name");
+                        String role = user.getString("role");
+                        String email = user.getString("email");
+
+                        // Print user details in the specified format
+                        System.out.println("Name: " + name + ", Role: " + role + ", Email: " + email);
                     }
                 }
             } else {
@@ -173,7 +207,67 @@ public class HemanRedisCreateDBAndUsers {
         }
     }
 
-    private static void trustAllCertificates() {
+    private static void deleteRedisDB(String apiUrl, String encodedAuth, int uid) {
+        int maxRetries = 3;
+        int retryIntervalMillis = 5000; // 5 seconds
+
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                // Construct the DELETE URL
+                String deleteUrl = apiUrl + "/" + uid;
+
+                // Create HTTP connection
+                URL url = new URL(deleteUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                // If the connection is HTTPS, configure SSL
+                if (connection instanceof HttpsURLConnection) {
+                    trustAllCertificates((HttpsURLConnection) connection);
+                }
+
+                // Set up the request
+                connection.setRequestMethod("DELETE");
+                connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
+
+                // Get the response
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_CONFLICT) {
+                    System.out.println("Database with UID " + uid + " is busy. Retrying in " + retryIntervalMillis
+                            + " milliseconds...");
+                    Thread.sleep(retryIntervalMillis); // Wait before retrying
+                } else if (responseCode == HttpURLConnection.HTTP_OK) {
+                    System.out.println("Database with UID " + uid + " deleted successfully.");
+                    return; // Exit the function if deletion is successful
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return; // Exit the function if an exception occurs
+            }
+        }
+        System.out.println("Max retries exceeded. Failed to delete database with UID " + uid);
+    }
+
+    private static void trustAllCertificates() throws Exception {
+        TrustManager[] trustAllCerts = { new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            }
+
+            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            }
+        } };
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+    }
+
+    private static void trustAllCertificates(HttpsURLConnection httpsConnection) {
         try {
             // Create a TrustManager that trusts all certificates
             TrustManager[] trustAllCerts = { new X509TrustManager() {
@@ -193,9 +287,9 @@ public class HemanRedisCreateDBAndUsers {
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
             // Set the SSLContext on the connection
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
             // Disable hostname verification
-            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+            httpsConnection.setHostnameVerifier((hostname, session) -> true);
         } catch (Exception e) {
             e.printStackTrace();
         }
