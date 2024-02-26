@@ -25,7 +25,6 @@ public class RedisInsertData {
                 // Flush the source database before inserting values
                 sourceJedis.flushDB();
 
-                // Insert values 1-100 into the source Redis database
                 for (int i = 1; i <= 100; i++) {
                     sourceJedis.zadd(KEY_NAME, i, String.valueOf(i));
                 }
@@ -41,7 +40,8 @@ public class RedisInsertData {
                 replicaJedis.auth(REDIS_PASSWORD);
 
                 // Read and print values in reverse order from the replica Redis database
-                System.out.println("Values retrieved from replica database (in reverse order):");
+                System.out.println("\n");
+                System.out.println("Task: |Values retrieved from replica database (in reverse order)|");
                 System.out.println(replicaJedis.zrevrange(KEY_NAME, 0, -1));
                 replicaJedis.close();
             }

@@ -15,16 +15,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class RedisDatabaseAndUsers {
+    private static final String dbApiUrl = "https://172.16.22.21:9443/v1/bdbs";
+    private static final String usersApiUrl = "https://172.16.22.21:9443/v1/users";
+    private static final String username = "admin@rl.org";
+    private static final String password = "nFbiQlO";
 
     public static void main(String[] args) {
-        // Database API URLs
-        String dbApiUrl = "https://172.16.22.21:9443/v1/bdbs";
-        // Users API URLs
-        String usersApiUrl = "https://172.16.22.21:9443/v1/users";
 
         // Authentication
-        String username = "admin@rl.org";
-        String password = "nFbiQlO";
         String encodedAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
 
         try {
@@ -64,7 +62,8 @@ public class RedisDatabaseAndUsers {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             // If the connection is HTTPS, configure SSL
-            // For the sake of exercise creating and using a TrustManager that trusts all certificates
+            // For the sake of exercise creating and using a TrustManager that trusts all
+            // certificates
             if (connection instanceof HttpsURLConnection) {
                 trustAllCertificates((HttpsURLConnection) connection);
             }
@@ -202,7 +201,7 @@ public class RedisDatabaseAndUsers {
 
     private static void deleteRedisDB(String apiUrl, String encodedAuth, int uid) {
         int maxRetries = 2;
-        int retryIntervalMillis =2000;
+        int retryIntervalMillis = 2000;
 
         for (int i = 0; i < maxRetries; i++) {
             try {
