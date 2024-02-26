@@ -52,9 +52,7 @@ public class HemanDatabaseAndUsers {
             System.out.println("\n");
 
             // Delete Redis database
-            if (uid != -1) {
                 deleteRedisDB(dbApiUrl, encodedAuth, uid);
-            }
 
         } catch (Exception e) {
             e.printStackTrace();
