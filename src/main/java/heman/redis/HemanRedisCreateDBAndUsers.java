@@ -37,6 +37,12 @@ public class HemanRedisCreateDBAndUsers {
             // Create user
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
 
+            // Create db_member user
+            // createUser(usersApiUrl, encodedAuth, "mike.smith@example.com", "Mike Smith", "db_member");
+
+            // Create db_viewer user
+            // createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
+
             // Display all users
             displayAllUsers(usersApiUrl, encodedAuth);
         } catch (Exception e) {
@@ -103,7 +109,9 @@ public class HemanRedisCreateDBAndUsers {
             connection.setDoOutput(true);
 
             // Create JSON data for the new user
-            String userData = String.format("{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"password\"}", email, name, role);
+            String userData = String.format(
+                    "{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"password\"}", email, name,
+                    role);
 
             // Send the request
             connection.getOutputStream().write(userData.getBytes("UTF-8"));
@@ -168,7 +176,7 @@ public class HemanRedisCreateDBAndUsers {
     private static void trustAllCertificates() {
         try {
             // Create a TrustManager that trusts all certificates
-            TrustManager[] trustAllCerts = {new X509TrustManager() {
+            TrustManager[] trustAllCerts = { new X509TrustManager() {
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
@@ -178,7 +186,7 @@ public class HemanRedisCreateDBAndUsers {
 
                 public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
                 }
-            }};
+            } };
 
             // Create SSLContext with the TrustManager
             SSLContext sslContext = SSLContext.getInstance("TLS");
