@@ -34,11 +34,13 @@ public class RedisDatabaseAndUsers {
             System.out.println("\n");
 
             // Create Redis database
+            System.out.println("Task 1: Create a new Redis-DB");
             int uid = createRedisDB(dbApiUrl, encodedAuth, "heman-new-db");
 
             System.out.println("\n");
 
             // Create admin user
+            System.out.println("Task 2: Create three new Redis-Users");
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
             createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
             createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
@@ -46,13 +48,15 @@ public class RedisDatabaseAndUsers {
             System.out.println("\n");
 
             // Display all users
+            System.out.println("Task 3: List and display Redis-Users");
             displayAllUsers(usersApiUrl, encodedAuth);
 
             // Add a line space
             System.out.println("\n");
 
             // Delete Redis database
-                deleteRedisDB(dbApiUrl, encodedAuth, uid);
+            System.out.println("Task 4: Delete the created Redis-DB");
+            deleteRedisDB(dbApiUrl, encodedAuth, uid);
 
         } catch (Exception e) {
             e.printStackTrace();
