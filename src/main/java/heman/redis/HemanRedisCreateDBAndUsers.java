@@ -40,6 +40,8 @@ public class HemanRedisCreateDBAndUsers {
 
             // Create admin user
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
+            createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
+            createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe",  "db_viewer");
 
             System.out.println("\n");
 
@@ -295,3 +297,4 @@ public class HemanRedisCreateDBAndUsers {
         }
     }
 }
+

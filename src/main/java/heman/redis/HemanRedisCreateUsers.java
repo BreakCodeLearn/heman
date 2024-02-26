@@ -12,10 +12,11 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+
 public class HemanRedisCreateUsers {
 
     public static void main(String[] args) {
-        // API URLs
+        // Users API URLs
         String usersApiUrl = "https://172.16.22.21:9443/v1/users";
 
         // Authentication
@@ -25,17 +26,13 @@ public class HemanRedisCreateUsers {
 
         try {
             trustAllCertificates();
-            // Create admin user
+
+            // Create Users
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
+            createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
+            createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe",  "db_viewer");
 
-            // Create db_member user
-            //createUser(usersApiUrl, encodedAuth, "mike.smith@example.com", "Mike Smith", "db_member");
-
-            // Create db_viewer user
-             //createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
-
-            // Display all users
-            displayAllUsers(usersApiUrl, encodedAuth);
+            System.out.println("\n");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,7 +49,17 @@ public class HemanRedisCreateUsers {
             connection.setDoOutput(true);
     
             // Create JSON data for the new user
-            String userData = String.format("{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"password\"}", email, name, role);
+            String userData;
+            if (role.equals("admin")) {
+                userData = String.format(
+                        "{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"password\"}",
+                        email, name, role);
+            } else {
+                // Include role_uids field for non-admin users
+                userData = String.format(
+                        "{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"password\", \"role_uids\": [2]}",
+                        email, name, role);
+            }
     
             // Send the request
             connection.getOutputStream().write(userData.getBytes("UTF-8"));
@@ -62,44 +69,8 @@ public class HemanRedisCreateUsers {
             if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
                 System.out.println("User created successfully: " + email);
             } else {
-                System.out.println("Failed to create user " + email + ". Response code: " + responseCode);
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
-            }
-            
-            connection.disconnect(); // Close the connection
-    
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-
-    private static void displayAllUsers(String apiUrl, String encodedAuth) {
-        try {
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
-    
-            // Get the response
-            int responseCode = connection.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
-    
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        // Print each user data line by line
-                        System.out.println(line);
-                    }
-                }
-            } else {
-                System.out.println("Failed to fetch users. Response code: " + responseCode);
+                System.out.println(
+                        "Failed to create user " + email + ". Response code: " + responseCode);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -115,7 +86,7 @@ public class HemanRedisCreateUsers {
         }
     }
     
-     private static void trustAllCertificates() throws Exception {
+    private static void trustAllCertificates() throws Exception {
         TrustManager[] trustAllCerts = { new X509TrustManager() {
             public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                 return null;
@@ -134,4 +105,6 @@ public class HemanRedisCreateUsers {
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
     }
-}
+
+   }
+
