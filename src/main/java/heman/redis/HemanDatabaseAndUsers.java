@@ -16,7 +16,7 @@ import javax.net.ssl.X509TrustManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class HemanRedisCreateDBAndUsers {
+public class HemanDatabaseAndUsers {
 
     public static void main(String[] args) {
         // Database API URLs
@@ -41,7 +41,7 @@ public class HemanRedisCreateDBAndUsers {
             // Create admin user
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
             createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
-            createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe",  "db_viewer");
+            createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
 
             System.out.println("\n");
 
@@ -167,7 +167,7 @@ public class HemanRedisCreateDBAndUsers {
 
             // Get the response
             int responseCode = connection.getResponseCode();
-            System.out.println("Display users list " + "Response Code: " + responseCode);
+            System.out.println("Display users list :" + "Response Code: " + responseCode);
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -297,4 +297,3 @@ public class HemanRedisCreateDBAndUsers {
         }
     }
 }
-

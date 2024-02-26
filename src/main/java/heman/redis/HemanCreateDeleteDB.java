@@ -11,32 +11,38 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
 import org.json.JSONObject;
 
-public class HemanRedisCreateDB {
+public class HemanCreateDeleteDB {
 
     public static void main(String[] args) {
-        String apiUrl = "https://172.16.22.21:9443/v1/bdbs";
+        // Database API URLs
+        String dbApiUrl = "https://172.16.22.21:9443/v1/bdbs";
+
+        // Authentication
         String username = "admin@rl.org";
         String password = "nFbiQlO";
-        String databaseName = "heman-new-db";
+        String encodedAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
 
-        // Create Redis database
-        int uid = createRedisDB(apiUrl, username, password, databaseName);
+        try {
+            trustAllCertificates();
 
-        if (uid != -1) {
+            // Create Redis database
+            int uid = createRedisDB(dbApiUrl, encodedAuth, "heman-new-db");
+            System.out.println("\n");
+
             // Delete Redis database
-            deleteRedisDB(apiUrl, username, password, uid);
+            if (uid != -1) {
+                deleteRedisDB(dbApiUrl, encodedAuth, uid);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private static int createRedisDB(String apiUrl, String username, String password, String databaseName) {
+    private static int createRedisDB(String apiUrl, String encodedAuth, String databaseName) {
         try {
-            // Encode username and password for basic authentication
-            String authString = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
-
             // Create HTTP connection
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -63,7 +69,7 @@ public class HemanRedisCreateDB {
             // Get the response
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Request was successful (Response code: " + responseCode + ")");
+                System.out.println("Database creation request was successful (Response code: " + responseCode + ")");
 
                 // Read the response body
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -78,9 +84,8 @@ public class HemanRedisCreateDB {
                     String dbName = jsonResponse.getString("name");
                     int uid = jsonResponse.getInt("uid");
 
-                    // Print UID and database name
-                    System.out.println("Database Name: " + dbName);
-                    System.out.println("UID: " + uid);
+                    // Print UID
+                    System.out.println("New database name " + dbName + " UID: " + uid);
 
                     return uid;
                 }
@@ -94,36 +99,33 @@ public class HemanRedisCreateDB {
         return -1;
     }
 
-    private static void deleteRedisDB(String apiUrl, String username, String password, int uid) {
+    private static void deleteRedisDB(String apiUrl, String encodedAuth, int uid) {
         int maxRetries = 3;
         int retryIntervalMillis = 5000; // 5 seconds
-    
+
         for (int i = 0; i < maxRetries; i++) {
             try {
-                // Encode username and password for basic authentication
-                String authString = username + ":" + password;
-                String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
-    
                 // Construct the DELETE URL
                 String deleteUrl = apiUrl + "/" + uid;
-    
+
                 // Create HTTP connection
                 URL url = new URL(deleteUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    
+
                 // If the connection is HTTPS, configure SSL
                 if (connection instanceof HttpsURLConnection) {
                     trustAllCertificates((HttpsURLConnection) connection);
                 }
-    
+
                 // Set up the request
                 connection.setRequestMethod("DELETE");
                 connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
-    
+
                 // Get the response
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_CONFLICT) {
-                    System.out.println("Database with UID " + uid + " is busy. Retrying in " + retryIntervalMillis + " milliseconds...");
+                    System.out.println("Database with UID " + uid + " is busy. Retrying in " + retryIntervalMillis
+                            + " milliseconds...");
                     Thread.sleep(retryIntervalMillis); // Wait before retrying
                 } else if (responseCode == HttpURLConnection.HTTP_OK) {
                     System.out.println("Database with UID " + uid + " deleted successfully.");
@@ -136,7 +138,27 @@ public class HemanRedisCreateDB {
         }
         System.out.println("Max retries exceeded. Failed to delete database with UID " + uid);
     }
-    
+
+    private static void trustAllCertificates() throws Exception {
+        TrustManager[] trustAllCerts = { new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            }
+
+            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            }
+        } };
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+    }
+
     private static void trustAllCertificates(HttpsURLConnection httpsConnection) {
         try {
             // Create a TrustManager that trusts all certificates

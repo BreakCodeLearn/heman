@@ -2,7 +2,7 @@ package heman.redis;
 
 import redis.clients.jedis.Jedis;
 
-public class HemanRedisInsert {
+public class HemanInsertData {
 
     private static final String SOURCE_DB_HOST = "172.16.22.21";
     private static final int SOURCE_DB_PORT = 10999;
@@ -12,7 +12,7 @@ public class HemanRedisInsert {
     private static final String KEY_NAME = "hemankey";
 
     public static void main(String[] args) {
-        HemanRedisInsert redisObj = new HemanRedisInsert();
+        HemanInsertData redisObj = new HemanInsertData();
         redisObj.insertValuesToSourceDB();
         redisObj.printValuesFromReplicaDB();
     }
@@ -39,7 +39,7 @@ public class HemanRedisInsert {
         try (Jedis replicaJedis = createJedisConnection(REPLICA_DB_HOST, REPLICA_DB_PORT)) {
             if (replicaJedis != null) {
                 replicaJedis.auth(REDIS_PASSWORD);
-                
+
                 // Read and print values in reverse order from the replica Redis database
                 System.out.println("Values retrieved from replica database (in reverse order):");
                 System.out.println(replicaJedis.zrevrange(KEY_NAME, 0, -1));

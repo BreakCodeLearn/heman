@@ -14,7 +14,7 @@ import javax.net.ssl.X509TrustManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class HemanGetAllDBs {
+public class HemanGetDBs {
 
     public static void main(String[] args) {
         String apiUrl = "https://172.16.22.21:9443/v1/bdbs";
@@ -93,7 +93,7 @@ public class HemanGetAllDBs {
             String dbName = database.getString("name");
             String status = database.getString("status");
             int uid = database.getInt("uid"); // Extract uid as integer directly
-            
+
             int port = database.getJSONArray("endpoints").getJSONObject(0).getInt("port");
             System.out.println("Database Name: " + dbName);
             System.out.println("Status: " + status);
@@ -102,7 +102,6 @@ public class HemanGetAllDBs {
             // Extract and print other relevant information as needed
             System.out.println();
         }
-    }    
-    
-}
+    }
 
+}
