@@ -16,7 +16,7 @@ import javax.net.ssl.X509TrustManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class HemanDatabaseAndUsers {
+public class RedisDatabaseAndUsers {
 
     public static void main(String[] args) {
         // Database API URLs

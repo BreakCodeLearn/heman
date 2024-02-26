@@ -2,7 +2,7 @@ package heman.redis;
 
 import redis.clients.jedis.Jedis;
 
-public class HemanInsertData {
+public class RedisInsertData {
 
     private static final String SOURCE_DB_HOST = "172.16.22.21";
     private static final int SOURCE_DB_PORT = 10999;
@@ -12,7 +12,7 @@ public class HemanInsertData {
     private static final String KEY_NAME = "hemankey";
 
     public static void main(String[] args) {
-        HemanInsertData redisObj = new HemanInsertData();
+        RedisInsertData redisObj = new RedisInsertData();
         redisObj.insertValuesToSourceDB();
         redisObj.printValuesFromReplicaDB();
     }

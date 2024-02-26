@@ -14,7 +14,7 @@ import javax.net.ssl.X509TrustManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class HemanGetDBs {
+public class GetAllDatabases {
 
     public static void main(String[] args) {
         String apiUrl = "https://172.16.22.21:9443/v1/bdbs";

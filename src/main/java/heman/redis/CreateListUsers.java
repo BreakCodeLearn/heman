@@ -15,7 +15,7 @@ import javax.net.ssl.X509TrustManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class HemanCreateListUsers {
+public class CreateListUsers {
 
     public static void main(String[] args) {
         // Users API URLs
