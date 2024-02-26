@@ -7,12 +7,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,22 +34,18 @@ public class RedisDatabaseAndUsers {
             // Create Redis database
             System.out.println("Task 1: |Create a new Redis-DB|");
             int uid = createRedisDB(dbApiUrl, encodedAuth, "heman-new-db");
-
             System.out.println("\n");
 
-            // Create admin user
+            // Create Redis Users
             System.out.println("Task 2: |Create three new Redis-Users|");
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
             createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
             createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
-
             System.out.println("\n");
 
             // Display all users
             System.out.println("Task 3: |List and display Redis-Users|");
             displayAllUsers(usersApiUrl, encodedAuth);
-
-            // Add a line space
             System.out.println("\n");
 
             // Delete Redis database
@@ -70,17 +64,16 @@ public class RedisDatabaseAndUsers {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             // If the connection is HTTPS, configure SSL
+            // For the sake of exercise creating and using a TrustManager that trusts all certificates
             if (connection instanceof HttpsURLConnection) {
                 trustAllCertificates((HttpsURLConnection) connection);
             }
 
-            // Set up the request
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
             connection.setDoOutput(true);
 
-            // Create JSON data for the new database
             String postData = "{\"name\": \"" + databaseName + "\", \"memory_size\": 20480000}";
 
             // Send the request
@@ -106,8 +99,7 @@ public class RedisDatabaseAndUsers {
                     String dbName = jsonResponse.getString("name");
                     int uid = jsonResponse.getInt("uid");
 
-                    // Print UID
-                    System.out.println("New database name " + dbName + " UID: " + uid);
+                    System.out.println("New database name: " + dbName);
 
                     return uid;
                 }
@@ -167,7 +159,6 @@ public class RedisDatabaseAndUsers {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
 
-            // Get the response
             int responseCode = connection.getResponseCode();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -182,7 +173,6 @@ public class RedisDatabaseAndUsers {
                     // Parse JSON array of users
                     JSONArray usersArray = new JSONArray(usersData.toString());
 
-                    // Iterate through the users and print required fields
                     for (int i = 0; i < usersArray.length(); i++) {
                         JSONObject user = usersArray.getJSONObject(i);
                         String name = user.getString("name");
@@ -203,7 +193,7 @@ public class RedisDatabaseAndUsers {
                 }
             }
 
-            connection.disconnect(); // Close the connection
+            connection.disconnect();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -211,35 +201,30 @@ public class RedisDatabaseAndUsers {
     }
 
     private static void deleteRedisDB(String apiUrl, String encodedAuth, int uid) {
-        int maxRetries = 3;
-        int retryIntervalMillis = 5000; // 5 seconds
+        int maxRetries = 2;
+        int retryIntervalMillis =2000;
 
         for (int i = 0; i < maxRetries; i++) {
             try {
-                // Construct the DELETE URL
                 String deleteUrl = apiUrl + "/" + uid;
 
-                // Create HTTP connection
                 URL url = new URL(deleteUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-                // If the connection is HTTPS, configure SSL
                 if (connection instanceof HttpsURLConnection) {
                     trustAllCertificates((HttpsURLConnection) connection);
                 }
 
-                // Set up the request
                 connection.setRequestMethod("DELETE");
                 connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
 
-                // Get the response
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_CONFLICT) {
-                    System.out.println("Database with UID " + uid + " is busy. Retrying in " + retryIntervalMillis
+                    System.out.println("Database 'heman-new-db' is busy. Retrying in " + retryIntervalMillis
                             + " milliseconds...");
                     Thread.sleep(retryIntervalMillis); // Wait before retrying
                 } else if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("Database with UID " + uid + " deleted successfully.");
+                    System.out.println("Database 'heman-new-db' DELETED successfully.");
                     return; // Exit the function if deletion is successful
                 }
             } catch (Exception e) {
@@ -291,6 +276,7 @@ public class RedisDatabaseAndUsers {
 
             // Set the SSLContext on the connection
             httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+
             // Disable hostname verification
             httpsConnection.setHostnameVerifier((hostname, session) -> true);
         } catch (Exception e) {
