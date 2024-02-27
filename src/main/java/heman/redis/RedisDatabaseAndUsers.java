@@ -83,7 +83,7 @@ public class RedisDatabaseAndUsers {
             // Get the response
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Database creation request was successful");
+                System.out.println("Database creation request was successful (Response code: " + responseCode + ")");
 
                 // Read the response body
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -132,7 +132,7 @@ public class RedisDatabaseAndUsers {
             // Get the response
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("User created successfully: " + email);
+                System.out.println("User created successfully: " + email + "( Response code: " + responseCode + ")");
             } else {
                 System.out.println(
                         "Failed to create user as it already exists " + email);
@@ -223,7 +223,7 @@ public class RedisDatabaseAndUsers {
                             + " milliseconds...");
                     Thread.sleep(retryIntervalMillis); // Wait before retrying
                 } else if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("Database 'heman-new-db' DELETED successfully.");
+                    System.out.println("Database 'heman-new-db' DELETED successfully (Response code: " + responseCode + ")");
                     return; // Exit the function if deletion is successful
                 }
             } catch (Exception e) {
