@@ -1,4 +1,0 @@
------BEGIN CERTIFICATE-----
-Himan: Deleted for Security
------END CERTIFICATE-----
-
