@@ -44,6 +44,7 @@ public class RedisInsertData {
                 System.out.println("Task: |Values retrieved from replica database (in reverse order)|");
                 System.out.println(replicaJedis.zrevrange(KEY_NAME, 0, -1));
                 replicaJedis.close();
+                System.out.println("\n");
             }
         } catch (Exception e) {
             System.out.println("Failed to connect to replica database or retrieve values: " + e.getMessage());

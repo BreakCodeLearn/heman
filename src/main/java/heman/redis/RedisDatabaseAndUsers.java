@@ -49,6 +49,7 @@ public class RedisDatabaseAndUsers {
             // Delete Redis database
             System.out.println("Task 4: |Delete the created Redis-DB|");
             deleteRedisDB(dbApiUrl, encodedAuth, uid);
+            System.out.println("\n");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,8 +135,7 @@ public class RedisDatabaseAndUsers {
             if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
                 System.out.println("User created successfully: " + email + "( Response code: " + responseCode + ")");
             } else {
-                System.out.println(
-                        "Failed to create user as it already exists " + email);
+                System.out.println("Failed to create user as it already exists " + email);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
