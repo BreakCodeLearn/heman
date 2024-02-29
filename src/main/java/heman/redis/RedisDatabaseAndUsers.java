@@ -30,24 +30,24 @@ public class RedisDatabaseAndUsers {
             System.out.println("\n");
 
             // Create Redis database
-            System.out.println("Task 1: |Create a new Redis-DB|");
+            System.out.println("Task 1: Create a new Redis-DB");
             int uid = createRedisDB(dbApiUrl, encodedAuth, "heman-new-db");
             System.out.println("\n");
 
             // Create Redis Users
-            System.out.println("Task 2: |Create three new Redis-Users|");
+            System.out.println("Task 2: Create three new Redis-Users");
             createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
             createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
             createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
             System.out.println("\n");
 
             // Display all users
-            System.out.println("Task 3: |List and display Redis-Users|");
+            System.out.println("Task 3: List and display Redis-Users");
             displayAllUsers(usersApiUrl, encodedAuth);
             System.out.println("\n");
 
             // Delete Redis database
-            System.out.println("Task 4: |Delete the created Redis-DB|");
+            System.out.println("Task 4: Delete the created Redis-DB");
             deleteRedisDB(dbApiUrl, encodedAuth, uid);
             System.out.println("\n");
 
@@ -63,8 +63,7 @@ public class RedisDatabaseAndUsers {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             // If the connection is HTTPS, configure SSL
-            // For the sake of exercise creating and using a TrustManager that trusts all
-            // certificates
+            // For the sake of exercise creating and using a TrustManager that trusts all certificates
             if (connection instanceof HttpsURLConnection) {
                 trustAllCertificates((HttpsURLConnection) connection);
             }
@@ -133,7 +132,7 @@ public class RedisDatabaseAndUsers {
             // Get the response
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("User created successfully: " + email + "( Response code: " + responseCode + ")");
+                System.out.println("User created successfully: " + email + " Response code: " + responseCode + ")");
             } else {
                 System.out.println("Failed to create user as it already exists " + email);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {

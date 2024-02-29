@@ -28,6 +28,12 @@ public class RedisInsertData {
                 for (int i = 1; i <= 100; i++) {
                     sourceJedis.zadd(KEY_NAME, i, String.valueOf(i));
                 }
+                // Print values from the 'source-db'
+                System.out.println("\n");
+                System.out.println("Print the values from 'source-db'");
+                System.out.println(sourceJedis.zrange(KEY_NAME, 0, -1));
+                sourceJedis.close();
+                System.out.println("\n");
             }
         } catch (Exception e) {
             System.out.println("Failed to connect to source database or insert values: " + e.getMessage());
@@ -41,7 +47,7 @@ public class RedisInsertData {
 
                 // Read and print values in reverse order from the replica Redis database
                 System.out.println("\n");
-                System.out.println("Task: |Values retrieved from replica database (in reverse order)|");
+                System.out.println("Task: Print the values retrieved from 'replica-db' in REVERSE order");
                 System.out.println(replicaJedis.zrevrange(KEY_NAME, 0, -1));
                 replicaJedis.close();
                 System.out.println("\n");
