@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -22,9 +20,7 @@ public class CreateListUsers {
         String usersApiUrl = "https://172.16.22.21:9443/v1/users";
 
         // Authentication
-        String username = "admin@rl.org";
-        String password = "nFbiQlO";
-        String encodedAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+        String encodedAuth = "YWRtaW5Acmwub3JnOm5GYmlRbE8=";
 
         try {
             trustAllCertificates();

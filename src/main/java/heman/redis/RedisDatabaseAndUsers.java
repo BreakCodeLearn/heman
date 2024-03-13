@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -17,13 +16,9 @@ import org.json.JSONObject;
 public class RedisDatabaseAndUsers {
     private static final String dbApiUrl = "https://172.16.22.21:9443/v1/bdbs";
     private static final String usersApiUrl = "https://172.16.22.21:9443/v1/users";
-    private static final String username = "admin@rl.org";
-    private static final String password = "nFbiQlO";
-
+    private static final String encodedAuth = "YWRtaW5Acmwub3JnOm5GYmlRbE8=";
+    
     public static void main(String[] args) {
-
-        // Authentication
-        String encodedAuth = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
 
         try {
             trustAllCertificates();
@@ -132,7 +127,7 @@ public class RedisDatabaseAndUsers {
             // Get the response
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("User created successfully: " + email + " Response code: " + responseCode + ")");
+                System.out.println("User created successfully: " + email + " (Response code: " + responseCode + ")");
             } else {
                 System.out.println("Failed to create user as it already exists " + email);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {

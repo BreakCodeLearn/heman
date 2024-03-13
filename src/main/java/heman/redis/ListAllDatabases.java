@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -18,14 +17,9 @@ public class ListAllDatabases {
 
     public static void main(String[] args) {
         String apiUrl = "https://172.16.22.21:9443/v1/bdbs";
-        String username = "admin@rl.org";
-        String password = "nFbiQlO";
+        String encodedAuth = "YWRtaW5Acmwub3JnOm5GYmlRbE8=";
 
         try {
-            // Encode username and password for basic authentication
-            String authString = username + ":" + password;
-            String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
-
             // Create HTTP connection
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
