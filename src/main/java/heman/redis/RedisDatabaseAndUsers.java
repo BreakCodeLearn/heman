@@ -17,7 +17,7 @@ public class RedisDatabaseAndUsers {
     private static final String dbApiUrl = "https://172.16.22.21:9443/v1/bdbs";
     private static final String usersApiUrl = "https://172.16.22.21:9443/v1/users";
     private static final String encodedAuth = "YWRtaW5Acmwub3JnOm5GYmlRbE8=";
-    
+
     public static void main(String[] args) {
 
         try {
@@ -31,9 +31,9 @@ public class RedisDatabaseAndUsers {
 
             // Create Redis Users
             System.out.println("Task 2: Create three new Redis-Users");
-            createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin");
-            createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member");
-            createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer");
+            createUser(usersApiUrl, encodedAuth, "cary.johnson@example.com", "Cary Johnson", "admin", "Pass007");
+            createUser(usersApiUrl, encodedAuth, "cmike.smith@example.com", "Mike Smith", "db_member", "Pass007");
+            createUser(usersApiUrl, encodedAuth, "john.doe@example.com", "John Doe", "db_viewer", "Pass007");
             System.out.println("\n");
 
             // Display all users
@@ -58,7 +58,8 @@ public class RedisDatabaseAndUsers {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             // If the connection is HTTPS, configure SSL
-            // For the sake of exercise creating and using a TrustManager that trusts all certificates
+            // For the sake of exercise creating and using a TrustManager that trusts all
+            // certificates
             if (connection instanceof HttpsURLConnection) {
                 trustAllCertificates((HttpsURLConnection) connection);
             }
@@ -68,7 +69,7 @@ public class RedisDatabaseAndUsers {
             connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
             connection.setDoOutput(true);
 
-            String postData = "{\"name\": \"" + databaseName + "\", \"memory_size\": 20480000}";
+            String postData = "{\"name\": \"" + databaseName + "\", \"memory_size\": 1024000000}";
 
             // Send the request
             try (OutputStream os = connection.getOutputStream()) {
@@ -107,7 +108,8 @@ public class RedisDatabaseAndUsers {
         return -1;
     }
 
-    private static void createUser(String apiUrl, String encodedAuth, String email, String name, String role) {
+    private static void createUser(String apiUrl, String encodedAuth, String email, String name, String role,
+            String password) {
         try {
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -118,8 +120,8 @@ public class RedisDatabaseAndUsers {
 
             // Create JSON data for the new user
             String userData = String.format(
-                    "{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"password\"}", email, name,
-                    role);
+                    "{\"email\": \"%s\", \"name\": \"%s\", \"role\": \"%s\", \"password\": \"%s\"}", email, name,
+                    role, password);
 
             // Send the request
             connection.getOutputStream().write(userData.getBytes("UTF-8"));
@@ -130,14 +132,7 @@ public class RedisDatabaseAndUsers {
                 System.out.println("User created successfully: " + email + " (Response code: " + responseCode + ")");
             } else {
                 System.out.println("Failed to create user as it already exists " + email);
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
             }
-
             connection.disconnect(); // Close the connection
 
         } catch (IOException e) {
@@ -178,12 +173,6 @@ public class RedisDatabaseAndUsers {
                 }
             } else {
                 System.out.println("Failed to fetch users. Response code: " + responseCode);
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
             }
 
             connection.disconnect();
@@ -217,8 +206,9 @@ public class RedisDatabaseAndUsers {
                             + " milliseconds...");
                     Thread.sleep(retryIntervalMillis); // Wait before retrying
                 } else if (responseCode == HttpURLConnection.HTTP_OK) {
-                    System.out.println("Database 'heman-new-db' DELETED successfully (Response code: " + responseCode + ")");
-                    return; // Exit the function if deletion is successful
+                    System.out.println(
+                            "Database 'heman-new-db' DELETED successfully (Response code: " + responseCode + ")");
+                    return;
                 }
             } catch (Exception e) {
                 e.printStackTrace();

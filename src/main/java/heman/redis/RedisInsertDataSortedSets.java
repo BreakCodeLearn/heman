@@ -2,17 +2,17 @@ package heman.redis;
 
 import redis.clients.jedis.Jedis;
 
-public class RedisInsertDataSet {
+public class RedisInsertDataSortedSets {
 
     private static final String SOURCE_DB_HOST = "172.16.22.21";
     private static final int SOURCE_DB_PORT = 10999;
     private static final String REPLICA_DB_HOST = "172.16.22.21";
     private static final int REPLICA_DB_PORT = 10998;
     private static final String REDIS_PASSWORD = "him28pass";
-    private static final String KEY_NAME = "hemankeyset";
+    private static final String KEY_NAME = "hemankeysortset";
 
     public static void main(String[] args) {
-        RedisInsertDataSet redisObj = new RedisInsertDataSet();
+        RedisInsertDataSortedSets redisObj = new RedisInsertDataSortedSets();
         redisObj.insertValuesToSourceDB();
         redisObj.printValuesFromReplicaDB();
     }

@@ -29,12 +29,12 @@ public class RedisInsertDataList {
                 }
 
                 for (int i = 1; i <= 100; i++) {
-                    sourceJedis.lpush(KEY_NAME, String.valueOf(i)); // Use LPUSH for inserting into list
+                    sourceJedis.rpush(KEY_NAME, String.valueOf(i)); 
                 }
                 // Print values from the 'source-db'
                 System.out.println("\n");
                 System.out.println("Print the values from 'source-db'");
-                List<String> values = sourceJedis.lrange(KEY_NAME, 0, -1); // Get values using LRANGE
+                List<String> values = sourceJedis.lrange(KEY_NAME, 0, -1);
                 for (String value : values) {
                     System.out.println(value);
                 }
@@ -53,12 +53,11 @@ public class RedisInsertDataList {
                 // Read and print values from the replica Redis database
                 System.out.println("\n");
                 System.out.println("Print the values retrieved from 'replica-db' in REVERSE order");
-                List<String> values = replicaJedis.lrange(KEY_NAME, 0, -1); // Get values using LRANGE
+                List<String> values = replicaJedis.lrange(KEY_NAME, 0, -1); 
                 for (int i = values.size() - 1; i >= 0; i--) {
                     System.out.println(values.get(i));
                 }
                 System.out.println("\n");
-
                 replicaJedis.close();
             }
         } catch (Exception e) {
